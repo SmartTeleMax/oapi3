@@ -3,6 +3,10 @@ import yaml
 from .schema import OpenApiObject
 from . import exceptions
 
+
+name = "oapi3"
+
+
 def from_dict(d, schema_url):
     return OpenApiObject(d, schema_url=schema_url)
 
