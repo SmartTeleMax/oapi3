@@ -314,13 +314,14 @@ class MediaTypeObject(Object):
     MEDIA_TYPES = {
         'text/plain': 'validate_plain_text',
         'application/json': 'validate_application_json',
+        'audio/x-wav': 'validate_audio_x_wav',
     }
 
     def __init__(self, root, value, media_type):
         assert media_type in self.MEDIA_TYPES
         self.media_type = media_type
         super().__init__(root, {
-            'schema': SchemaObject(root, value.get('schema')),
+            'schema': SchemaObject(root, value.get('schema', {})),
             'encoding': value.get('encoding'),
         })
 
@@ -332,13 +333,16 @@ class MediaTypeObject(Object):
 
     def validate_application_json(self, value):
         try:
-            value = json.loads(value)
+            value = json.loads(value.decode())
         except (json.decoder.JSONDecodeError, TypeError) as exc:
             raise exceptions.JsonDecodeError(str(exc))
         try:
             self['schema'].validate(value)
         except exceptions.SchemaValidationError as exc:
             raise exceptions.BodyValidationError(str(exc))
+        return value
+
+    def validate_audio_x_wav(self, value):
         return value
 
 
