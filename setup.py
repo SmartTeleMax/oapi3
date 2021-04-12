@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='oapi3',
-    version='0.1',
+    version='0.3',
     author="Mayorov Evgeny",
     author_email="motormen@gmail.com",
     description="Validator of openapi3 requests and responses",
@@ -20,7 +20,7 @@ setup(
     url="https://github.com/SmartTeleMax/oapi3",
     install_requires=[
         'pyyaml',
-        'jsonschema==2.6',
+        'jsonschema',
         'openapi_spec_validator',
     ],
     classifiers=(

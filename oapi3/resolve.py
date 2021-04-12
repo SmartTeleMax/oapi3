@@ -1,0 +1,137 @@
+"""
+Module contains functions for open and resolve yaml schema files
+
+Exemple:
+
+    schema = open_schema('api.yaml')
+
+"""
+import os
+from urllib.parse import urljoin
+from urllib.parse import urlparse
+
+import yaml
+
+from .schema import Schema
+
+
+def open_schema(root_file_path):
+    """ Open schema """
+    root_file_path = os.path.abspath(root_file_path)
+    schema = {}
+    open_schema_file(schema, root_file_path)
+    resolve_value(schema, root_file_path, schema[root_file_path], {})
+    return Schema(schema[root_file_path])
+
+
+def open_schema_file(schema, file_path):
+    """ Open and parse schema file. Function open recuesive other files,
+    if the file contains refs.
+    """
+    if file_path in schema:
+        return schema
+    with open(file_path, encoding='utf-8') as f:
+        value = yaml.load(f, Loader=yaml.SafeLoader)
+    schema[file_path] = value
+    ref_files = {ref.path for ref in get_refs(schema, file_path, value)}
+    for ref_file_path in ref_files:
+        open_schema_file(schema, ref_file_path)
+    return schema
+
+
+def get_refs(schema, base_path, value):
+    """ Get all refs from value """
+    result = set()
+    if isinstance(value, dict):
+        for k, v in value.items():
+            if k == '$ref':
+                result.add(create_ref(base_path, v))
+            else:
+                result |= get_refs(schema, base_path, v)
+        # resolve discriminator mapping
+        if 'mapping' in value and isinstance(value['mapping'], dict):
+            result |= {
+                create_ref(base_path, v) for v in value['mapping'].values()
+            }
+    if isinstance(value, list):
+        for i in value:
+            result |= get_refs(schema, base_path, i)
+    return result
+
+
+def resolve_ref(schema, ref, cache):
+    """ Get and resolve value referenced by ref """
+    if ref in cache:
+        return cache[ref]
+    value = get_value_by_ref(schema, ref)
+    if value is None:
+        return None
+    resolve_value(schema, ref.path, value, cache)
+    cache[ref] = value
+    return value
+
+
+def resolve_value(schema, file_path, value, cache):
+    """ Recurcive find and replace $ref in value """
+    if isinstance(value, dict):
+        resolved_keys = set()
+        if '$ref' in value:
+            ref = value.pop('$ref')
+            ref_value = resolve_ref(
+                schema,
+                create_ref(file_path, ref),
+                cache,
+            )
+            if ref_value is None:
+                raise Exception(
+                    'Ref not found file={}, ref={}'.format(file_path, ref),
+                )
+            resolved_keys = set(ref_value) - set(value)
+            ref_value.update(value)
+            value.update(ref_value)
+        # resolve discriminator mapping
+        if 'mapping' in value and isinstance(value['mapping'], dict):
+            for k, v in value['mapping'].items():
+                value['mapping'][k] = resolve_ref(
+                        schema,
+                        create_ref(file_path, v),
+                        cache,
+                )
+        for k, v in value.items():
+            if k in resolved_keys:
+                continue
+            if isinstance(v, (list, dict)):
+                resolve_value(schema, file_path, v, cache)
+    if isinstance(value, list):
+        for i in value:
+            if isinstance(i, (list, dict)):
+                resolve_value(schema, file_path, i, cache)
+
+
+def get_value_by_ref(schema, ref):
+    """ Get value referenced by ref """
+    value = schema.get(ref.path)
+    if value is None:
+        return None
+    for key in ref.fragment.split('/')[1:]:
+        try:
+            value = value[key]
+        except KeyError:
+            raise Exception(
+                'Ref "{}" not found in file "{}"'.format(
+                    ref.fragment[1:],
+                    ref.path,
+                ),
+            )
+        if value is None:
+            return None
+    return value
+
+
+def create_ref(file_path, ref_str):
+    """ Create ref obj from ref string """
+    ref = urlparse(urljoin(file_path, ref_str))
+    assert (
+        ref.path and ref.fragment and not ref.netloc and not ref.query
+    ), "Cannot resolve ref: {}".format(ref_str)
+    return ref

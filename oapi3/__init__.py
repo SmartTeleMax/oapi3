@@ -1,18 +1,26 @@
-import json
-import yaml
-from .schema import OpenApiObject
+"""
+Openapi3 schema library
+
+1. Open and resolve openapi3 schema
+
+    import openapi3
+    schema = openapi3.open_schema('api.yaml')
+
+
+2. Validate requests and responses
+
+    schema.validate_request(path, operation, query, media_type, body)
+    schema.validate_response(path, operation, status_code, media_type, body)
+
+3. Create client to remote api
+
+    client = Client('http://server/api', schema)
+    client.some_method(
+        params={'item_id': 10},
+        body={'some_key': 'some_date'},
+    )
+"""
 from . import exceptions
-
-
-name = "oapi3"
-
-
-def from_dict(d, schema_url):
-    return OpenApiObject(d, schema_url=schema_url)
-
-def from_yaml(f, schema_url):
-    return from_dict(yaml.load(f), schema_url=schema_url)
-
-def from_json(f, schema_url):
-    return from_dict(json.load(f), schema_url=schema_url)
-
+from .client import Client
+# flake8: noqa: F401
+from .resolve import open_schema
