@@ -53,7 +53,7 @@ def oneOf_draft_openapi3(validator, oneOf, instance, schema):
     if 'discriminator' in schema:
         yield from discriminator_validator(validator, oneOf, instance, schema)
     else:
-        yield from jsonschema._validators.oneOf_draft4(
+        yield from jsonschema._validators.oneOf(
             validator,
             oneOf,
             instance,
