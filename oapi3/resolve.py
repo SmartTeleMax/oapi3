@@ -33,7 +33,7 @@ def open_schema_file(schema, file_path):
     with open(file_path, encoding='utf-8') as f:
         value = yaml.load(f, Loader=yaml.SafeLoader)
     schema[file_path] = value
-    ref_files = {ref.path for ref in get_refs(schema, file_path, value)}
+    ref_files = {ref[0] for ref in get_refs(schema, file_path, value)}
     for ref_file_path in ref_files:
         open_schema_file(schema, ref_file_path)
     return schema
@@ -66,7 +66,7 @@ def resolve_ref(schema, ref, cache):
     value = get_value_by_ref(schema, ref)
     if value is None:
         return None
-    resolve_value(schema, ref.path, value, cache)
+    resolve_value(schema, ref[0], value, cache)
     cache[ref] = value
     return value
 
@@ -110,18 +110,15 @@ def resolve_value(schema, file_path, value, cache):
 
 def get_value_by_ref(schema, ref):
     """ Get value referenced by ref """
-    value = schema.get(ref.path)
+    value = schema.get(ref[0])
     if value is None:
         return None
-    for key in ref.fragment.split('/')[1:]:
+    for key in ref[1].split('/')[1:]:
         try:
             value = value[key]
         except KeyError:
             raise Exception(
-                'Ref "{}" not found in file "{}"'.format(
-                    ref.fragment[1:],
-                    ref.path,
-                ),
+                'Ref "{}" not found in file "{}"'.format(ref[1][1:], ref[0]),
             )
         if value is None:
             return None
@@ -130,8 +127,16 @@ def get_value_by_ref(schema, ref):
 
 def create_ref(file_path, ref_str):
     """ Create ref obj from ref string """
-    ref = urlparse(urljoin(file_path, ref_str))
-    assert (
-        ref.path and ref.fragment and not ref.netloc and not ref.query
-    ), "Cannot resolve ref: {}".format(ref_str)
-    return ref
+    ref = urlparse(ref_str)
+    assert ref.fragment and not ref.netloc and not ref.query, \
+        "Cannot resolve ref: {}".format(ref_str)
+    if ref.path:
+        path = os.path.normpath(
+            os.path.join(
+                os.path.dirname(file_path),
+                os.path.normcase(ref.path),
+            ),
+        )
+    else:
+        path = file_path
+    return path, ref.fragment 
