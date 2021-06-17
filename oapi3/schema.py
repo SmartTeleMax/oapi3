@@ -129,14 +129,22 @@ class Schema(dict):
         try:
             self.validate_jsonschema(parameters_schema, parameters)
         except jsonschema_validator.ValidationError as exc:
-            raise exceptions.SchemaValidationError(exc.path, exc.message)
+            raise exceptions.SchemaValidationError(
+                exc.absolute_path,
+                exc.message,
+            )
 
     def validate_body(self, schema_obj, body):
         try:
             self.validate_jsonschema(schema_obj, body)
         except jsonschema_validator.ValidationError as exc:
             raise exceptions.BodyValidationError(
-                str(exceptions.SchemaValidationError(exc.path, exc.message))
+                str(
+                    exceptions.SchemaValidationError(
+                        exc.absolute_path,
+                        exc.message,
+                    ),
+                ),
             )
 
     def validate_jsonschema(self, schema_obj, value):
