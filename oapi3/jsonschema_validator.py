@@ -60,28 +60,6 @@ def oneOf_draft_openapi3(validator, oneOf, instance, schema):
             schema,
         )
 
-    subschemas = enumerate(oneOf)
-    all_errors = []
-    for index, subschema in subschemas:
-        errs = list(validator.descend(instance, subschema, schema_path=index))
-        if not errs:
-            first_valid = subschema
-            break
-        all_errors.extend(errs)
-    else:
-        yield ValidationError(
-            "%r is not valid under any of the given schemas" % (instance,),
-            context=all_errors,
-        )
-
-    more_valid = [s for i, s in subschemas if validator.is_valid(instance, s)]
-    if more_valid:
-        more_valid.append(first_valid)
-        reprs = ", ".join(repr(schema) for schema in more_valid)
-        yield ValidationError(
-            "%r is valid under each of %s" % (instance, reprs)
-        )
-
 
 # XXX: hack: skip recursive refs
 def ref_openapi3(validator, ref, instance, schema):
