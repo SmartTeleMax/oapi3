@@ -87,7 +87,7 @@ def resolve_value(schema, file_path, value, cache):
                     'Ref not found file={}, ref={}'.format(file_path, ref),
                 )
             resolved_keys = set(ref_value) - set(value)
-            value = dict(ref_value, **value)
+            value.update(dict(ref_value, **value))
         # resolve discriminator mapping
         if 'mapping' in value and isinstance(value['mapping'], dict):
             for k, v in value['mapping'].items():
