@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='oapi3',
-    version='0.3.4',
+    version='0.3.5',
     author="Mayorov Evgeny",
     author_email="motormen@gmail.com",
     description="Validator of openapi3 requests and responses",
