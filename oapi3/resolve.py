@@ -91,11 +91,12 @@ def resolve_value(schema, file_path, value, cache):
         # resolve discriminator mapping
         if 'mapping' in value and isinstance(value['mapping'], dict):
             for k, v in value['mapping'].items():
-                value['mapping'][k] = resolve_ref(
+                if isinstance(v, str):  # XXX
+                    value['mapping'][k] = resolve_ref(
                         schema,
                         create_ref(file_path, v),
                         cache,
-                )
+                    )
         for k, v in value.items():
             if k in resolved_keys:
                 continue
