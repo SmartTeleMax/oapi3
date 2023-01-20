@@ -1,0 +1,47 @@
+paths:
+  TestResponseCode:
+    get:
+      tag: test
+      operationId: test_response_code
+      responses:
+        "200": {}
+
+  TestResponseCodeWithDefault:
+    get:
+      tag: test
+      operationId: test_response_code_with_default
+      responses:
+        "200": {}
+        "default": {}
+
+  TestResponseMediaType:
+    get:
+      tag: test
+      operationId: test_response_media_type
+      responses:
+        "200":
+          content:
+            "application/json": {}
+        "400":
+          content:
+            "text/*": {}
+        "500":
+           content:
+             "*/*": {}
+
+  TestResponseBody:
+    get:
+      tag: test
+      operationId: test_response_media_type
+      responses:
+        "200":
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  aaa:
+                    type: integer
+                required:
+                  - aaa
+                additionalProperties: false

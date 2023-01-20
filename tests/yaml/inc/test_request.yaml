@@ -1,0 +1,130 @@
+paths:
+  TestRequestPath:
+    get:
+      tag: test
+      operationId: test_request_path
+  TestRequestPathParams:
+    get:
+      tag: test
+      operationId: test_request_path_params
+    parameters:
+      - $ref: '#/parameters/Param1'
+      - $ref: '#/parameters/Param2'
+  TestRequestOperations:
+    get:
+      tag: test
+      operationId: test_request_operations_get
+    put:
+      tag: test
+      operationId: test_request_operations_put
+  TestRequestQueryParams:
+    get:
+      tag: test
+      operationId: test_request_query_params
+      parameters:
+        - $ref: '#/parameters/QueryParam'
+        - $ref: '#/parameters/QueryParamRequired'
+        - $ref: '#/parameters/QueryParamInt'
+  TestRequestJsonQueryParams:
+    get:
+      tag: test
+      operationId: test_request_json_query_params
+      parameters:
+        - $ref: '#/parameters/QueryParamJson'
+
+  TestRequestArrayQueryParams:
+    get:
+      tag: test
+      operationId: test_request_array_query_params
+      parameters:
+        - $ref: '#/parameters/QueryParamArrayFormFalse'
+        - $ref: '#/parameters/QueryParamArrayPipedelimitedFalse'
+        - $ref: '#/parameters/QueryParamArraySpacedelimitedFalse'
+  TestRequestBody:
+    post:
+      tag: test
+      operationId: test_request_body
+      requestBody:
+        $ref: '#/requestBodies/TestRequestBody'
+      
+parameters:
+  Param1:
+    name: param1
+    in: path
+    required: true
+  Param2:
+    name: param2
+    in: path
+    required: true
+    schema:
+      type: integer
+  QueryParam:
+    name: param
+    in: query
+  QueryParamRequired:
+    name: param_required
+    in: query
+    required: true
+  QueryParamInt:
+    name: param_int
+    in: query
+    schema:
+      type: integer
+  QueryParamJson:
+    name: param_json
+    in: query
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            test:
+              type: integer
+          additionalProperties: false
+  QueryParamArrayFormFalse:
+    name: param_array_form_false
+    in: query
+    style: form
+    explode: false
+    schema:
+      type: array
+  QueryParamArrayPipedelimitedFalse:
+    name: param_array_pipe_false
+    in: query
+    style: pipedelimited
+    explode: false
+    schema:
+      type: array
+      items:
+        type: integer
+  QueryParamArraySpacedelimitedFalse:
+    name: param_array_space_false
+    in: query
+    style: spacedelimited
+    explode: false
+    schema:
+      type: array
+      items:
+        type: integer
+requestBodies:
+  TestRequestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            aaa:
+              type: integer
+          required:
+            - aaa
+          additionalProperties: false
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            bbb:
+              type: integer
+          required:
+            - bbb 
+          additionalProperties: false
+      text/plain: {}

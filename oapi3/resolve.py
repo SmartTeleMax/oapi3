@@ -116,10 +116,10 @@ def get_value_by_ref(schema, ref):
     for key in ref[1].split('/')[1:]:
         try:
             value = value[key]
-        except KeyError:
+        except KeyError as exc:
             raise Exception(
                 'Ref "{}" not found in file "{}"'.format(ref[1][1:], ref[0]),
-            )
+            ) from exc
         if value is None:
             return None
     return value
@@ -139,4 +139,4 @@ def create_ref(file_path, ref_str):
         )
     else:
         path = file_path
-    return path, ref.fragment 
+    return path, ref.fragment

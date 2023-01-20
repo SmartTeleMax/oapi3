@@ -14,7 +14,7 @@ Openapi3 schema library
 
 3. Create client to remote api
 
-    client = Client('http://server/api', schema)
+    client = oapi3.Client('http://server/api', schema)
     client.some_method(
         params={'item_id': 10},
         body={'some_key': 'some_date'},

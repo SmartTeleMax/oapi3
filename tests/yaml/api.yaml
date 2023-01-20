@@ -1,0 +1,32 @@
+openapi: "3.1"
+info:
+  version: "1.0"
+  title: Tests
+  description: Tests
+tags:
+  - name: test
+    description: Test
+paths:
+  /test_request_path:
+    $ref: 'inc/test_request.yaml#/paths/TestRequestPath'
+  /test_request_path_params/{param1}/{param2}:
+    $ref: 'inc/test_request.yaml#/paths/TestRequestPathParams'
+  /test_request_operations:
+    $ref: 'inc/test_request.yaml#/paths/TestRequestOperations'
+  /test_request_query_params:
+    $ref: 'inc/test_request.yaml#/paths/TestRequestQueryParams'
+  /test_request_json_query_params:
+    $ref: 'inc/test_request.yaml#/paths/TestRequestJsonQueryParams'
+  /test_request_array_query_params:
+    $ref: 'inc/test_request.yaml#/paths/TestRequestArrayQueryParams'
+  /test_request_body:
+    $ref: 'inc/test_request.yaml#/paths/TestRequestBody'
+
+  /test_response_code:
+    $ref: 'inc/test_response.yaml#/paths/TestResponseCode'
+  /test_response_code_with_default:
+    $ref: 'inc/test_response.yaml#/paths/TestResponseCodeWithDefault'
+  /test_response_media_type:
+    $ref: 'inc/test_response.yaml#/paths/TestResponseMediaType'
+  /test_response_body:
+    $ref: 'inc/test_response.yaml#/paths/TestResponseBody'

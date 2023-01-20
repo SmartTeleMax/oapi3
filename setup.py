@@ -2,14 +2,14 @@ import sys
 from setuptools import setup
 from setuptools import find_packages
 
-PY3 = sys.version_info >= (3,0)
+PY3 = sys.version_info >= (3, 0)
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name='oapi3',
-    version='0.3.7',
+    version='1.0',
     author="Mayorov Evgeny",
     author_email="motormen@gmail.com",
     description="Validator of openapi3 requests and responses",

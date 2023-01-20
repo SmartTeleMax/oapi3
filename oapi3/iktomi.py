@@ -1,3 +1,13 @@
+'''
+Handlers for iktomi
+
+>>> from oapi3.iktomi HOpenApi3
+>>> HOpenApi3('openapi3/api.yaml') | h_cases(...)
+
+'''
+from typing import Union
+from typing import Optional
+from typing import Any
 import fnmatch
 import json
 import logging
@@ -5,92 +15,37 @@ import os
 from itertools import chain
 
 import webob
-import yaml
 import iktomi.web
+from iktomi.utils import VersionedStorage
 
 from . import exceptions
 from .resolve import open_schema
+from .schema import Schema
 
 logger = logging.getLogger()
 
 
 class HOpenApi3(iktomi.web.WebHandler):
+    ''' Oapi3 validation iktomi handler '''
 
-    def __init__(self, schema):
+    schema: Schema
+
+    def __init__(self, schema: Union[str, Schema]):
         super().__init__()
         if isinstance(schema, str):
             self.schema = open_schema(schema)
         else:
             self.schema = schema
 
-    def _update_required(self, base_path, app_path, cache_path):
-        if not os.path.isfile(cache_path):
-            return True
-
-        mtime = os.stat(cache_path).st_mtime
-        paths = [os.path.dirname(app_path), base_path]
-
-        for root, dirnames, filenames in chain.from_iterable(
-                os.walk(path) for path in paths):
-            for filename in fnmatch.filter(filenames, '*.yaml'):
-                if mtime < os.stat(os.path.join(root, filename)).st_mtime:
-                    return True
-        return False
-
-    def get_request_body(self, request):
-        """
-        Метод для извлечения "тела" из запроса.
-        Мы загружаем файлы через multipart/form-data, а всё остальное у нас
-        отправляется как application/json.
-        В первом случае request.body будет пустым, нужные нам данные
-        находятся в request.POST. Во втором случае всё наоборот - .POST пустой,
-        а нужный нам json лежит в body. Для упрощения дальнейшей обработки
-        запроса будем любые нужные нам данные называть термином body,
-        возвращая нужный нам контент в этом методе.
-
-        Parameters
-        ----------
-        request : webob.Request
-            instance of request
-
-        Returns
-        -------
-        [webob.Multidict or bytes]
-            content of request
-        """
-        if request.content_type in (
-                "application/x-www-form-urlencoded",
-                "multipart/form-data",
-        ):
-            return dict(request.POST)
-
-        if request.content_type == 'application/json':
-            return self._get_json_body(request.text)
-        return None
-
-    def get_response_body(self, response):
-        """
-        Метод для извлечения "тела" из ответа.
-
-        Parameters
-        ----------
-        response : webob.Response
-            instance of response
-
-        Returns
-        -------
-        [webob.Multidict or bytes]
-            content of response
-        """
-        if response.content_type == 'application/json':
-            return self._get_json_body(response.text)
-        return None
-
-    def __call__(self, env, data):
+    def __call__(
+        self,
+        env: VersionedStorage,
+        data: VersionedStorage,
+    ) -> webob.Response:
         path = env._route_state.path
         operation = env.request.method.lower()
         try:
-            body = self.get_request_body(env.request)
+            body = self._get_request_body(env.request)
         except (exceptions.BodyValidationError) as exc:
             return self._return_error(
                 webob.exc.HTTPBadRequest,
@@ -166,18 +121,64 @@ class HOpenApi3(iktomi.web.WebHandler):
         )
         return response
 
-    def _get_json_body(self, text):
+    def _get_request_body(self, request: webob.Request) -> Optional[dict]:
+        """
+        Method for getting body from request
+
+        Parameters
+        ----------
+        request : webob.Request
+            instance of request
+
+        Returns
+        -------
+        [dict or None]
+            content of request
+        """
+        if request.content_type in (
+                "application/x-www-form-urlencoded",
+                "multipart/form-data",
+        ):
+            return dict(request.POST)
+
+        if request.content_type == 'application/json':
+            return self._get_json_body(request.text)
+        return None
+
+    def _get_response_body(self, response: webob.Response) -> Optional[dict]:
+        """
+        Method for getting body from response
+
+        Parameters
+        ----------
+        response : webob.Response
+            instance of response
+
+        Returns
+        -------
+        [dict or None]
+            content of response
+        """
+        if response.content_type == 'application/json':
+            return self._get_json_body(response.text)
+        return None
+
+    def _get_json_body(self, text: str) -> Any:
         try:
             return json.loads(text)
         except (json.decoder.JSONDecodeError, TypeError) as exc:
             raise exceptions.BodyValidationError(str(exc))
 
-    def _return_error(self, exc, error, message):
+    def _return_error(
+        self,
+        exc: webob.exc.HTTPException,
+        error: str,
+        message: str,
+    ) -> webob.Response:
         json_data = json.dumps({
             'code': error,
             'message': message,
         })
-
         return webob.Response(
             json_data,
             status=exc.code,
@@ -187,15 +188,23 @@ class HOpenApi3(iktomi.web.WebHandler):
 
 
 class HOperation(iktomi.web.WebHandler):
+    ''' Handler for matching oapi3 operation_id '''
 
-    def __init__(self, schema, operation_id):
+    schema: Schema
+    operation_id: str
+
+    def __init__(self, schema: Schema, operation_id: str):
         super().__init__()
         self.schema = schema
         self.operation_id = operation_id
         assert self.schema.get_operation_by_id(operation_id), \
             'Unknown operation {}'.format(operation_id)
 
-    def __call__(self, env, data):
+    def __call__(
+        self,
+        env: VersionedStorage,
+        data: VersionedStorage,
+    ) -> Optional[webob.Response]:
         if env.openapi3_state['operation_id'] == self.operation_id:
             return self._next_handler(env, data)
-
+        return None

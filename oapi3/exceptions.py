@@ -1,8 +1,7 @@
-""" Модуль содержит все исключения использующиеся в пакете openapi3 """
+""" Module contains exceptions """
 
 
 class ApiRequestError(Exception):
-    """ Исключение выбрасывается если при http запросе api произошла ошибка """
 
     def __init__(self, url, error_text, http_code=None, error_body=None):
         self.url = url
@@ -10,7 +9,7 @@ class ApiRequestError(Exception):
         self.http_code = http_code
         self.error_body = error_body
         super().__init__(
-            'Ошибка при выполнении запроса <url={url}>: {code} {text}'.format(
+            'Request error <url={url}>: {code} {text}'.format(
                 url=url,
                 code=http_code,
                 text=error_text,
@@ -18,12 +17,10 @@ class ApiRequestError(Exception):
         )
 
 
-class ValidationError(Exception):
-    """ Ошибка валидации схемы """
+class ValidationError(Exception): pass
 
 
 class PathNotFound(ValidationError):
-    """ Ошибка возникает если путь указанный в запросе не найден """
 
     def __init__(self, path):
         self.path = path
@@ -31,16 +28,12 @@ class PathNotFound(ValidationError):
 
 
 class PathParamValidationError(ValidationError):
-    """ Ошибка возникает если параметры пути указанные в запросе не прошли
-    валидацию """
 
     def __init__(self, message):
         super().__init__('Path parameter validation error: {}'.format(message))
 
 
 class OperationNotAllowed(ValidationError):
-    """ Ошибка возникает если в запросе указана операция, не разрешенная в
-    схеме """
 
     def __init__(self, operation, allowed_operations):
         self.operation = operation

@@ -1,8 +1,14 @@
+'''
+Module contains patched jsonschema validator
+>>> import jsonschema_validator
+>>> jsonschema_validator.valiate(instance, schema)
+'''
 import jsonschema._utils
 import jsonschema._validators
 import jsonschema.validators
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
+
 
 draft_openapi3_meta_schema = jsonschema._utils.load_schema("draft4")
 draft_openapi3_meta_schema['properties']['discriminator'] = {
@@ -72,7 +78,6 @@ def ref_openapi3(validator, ref, instance, schema):
                                                   instance, schema)
 
 
-
 validators = jsonschema.validators.Draft4Validator.VALIDATORS.copy()
 validators['$ref'] = ref_openapi3
 validators['oneOf'] = oneOf_draft_openapi3
@@ -84,5 +89,6 @@ DraftOpenapi3 = jsonschema.validators.create(
 )
 
 
-def validate(instance, schema):
+def validate(instance: dict, schema: dict):
+    ''' Validate json by json schema '''
     return jsonschema.validate(instance, schema, DraftOpenapi3)
