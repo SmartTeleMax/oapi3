@@ -1,11 +1,13 @@
 ''' Module conatins Schema class '''
 from typing import Any
+from typing import Tuple
 import re
 from collections import OrderedDict
 
 from . import exceptions
 from . import jsonschema_validator
 from .entities import PathsEntity
+from .entities import OperationEntity
 
 
 class Schema(dict):
@@ -96,3 +98,13 @@ class Schema(dict):
             'media_type': media_type,
             'body': body,
         }
+
+    def get_operation_by_id(
+        self,
+        operation_id: str,
+       ) -> Tuple[str, str, OperationEntity]:
+        ''' Get operation entity by operation_id '''
+        for path_entity in self.paths_entity.paths:
+            for method, operation_entity in path_entity.operations.items():
+                if operation_entity.operation_id == operation_id:
+                    return path_entity.pattern, method, operation_entity

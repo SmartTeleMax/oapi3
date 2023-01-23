@@ -44,7 +44,7 @@ class ParameterEntity(Entity):
         ''' Get or create schema '''
 
 
-class JsonParamSchema(ParameterEntity):
+class JsonParameterEntity(ParameterEntity):
     ''' Parameter entity for params with conent type 'application/json' '''
 
     def serialize(self, value: Any) -> str:
@@ -136,23 +136,23 @@ class DelemitedArrayParameterEntity(ArrayParameterEntity):
         ]
 
 
-class FormNEArrayEntity(DelemitedArrayParameterEntity):
+class FormNEArrayParameterEntity(DelemitedArrayParameterEntity):
     ''' Parameter entity for form not explode array parameters '''
     delimiter = ','
 
 
-class PipedelimitedNEArrayEntity(DelemitedArrayParameterEntity):
+class PipedelimitedNEArrayParameterEntity(DelemitedArrayParameterEntity):
     ''' Parameter entity for pipedelimited not explode array parameters '''
     delimiter = '|'
 
 
-class SpacedelimitedNEArrayEntity(DelemitedArrayParameterEntity):
+class SpacedelimitedNEArrayParameterEntity(DelemitedArrayParameterEntity):
     ''' Parameter entity for pipedelimited not explode array parameters '''
     delimiter = ' '
 
 
 CONTENT_PARAM_TYPES = {
-    'application/json': JsonParamSchema,
+    'application/json': JsonParameterEntity,
 }
 
 PRIMITIVE_SCHEMAS = {
@@ -164,9 +164,9 @@ PRIMITIVE_SCHEMAS = {
 }
 
 ARRAY_SCHEMAS = {
-    ('form', False): FormNEArrayEntity,
-    ('pipedelimited', False): PipedelimitedNEArrayEntity,
-    ('spacedelimited', False): SpacedelimitedNEArrayEntity,
+    ('form', False): FormNEArrayParameterEntity,
+    ('pipedelimited', False): PipedelimitedNEArrayParameterEntity,
+    ('spacedelimited', False): SpacedelimitedNEArrayParameterEntity,
 }
 
 IMPLEMENTED_PARAM_TYPES = {

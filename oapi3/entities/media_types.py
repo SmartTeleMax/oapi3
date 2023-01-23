@@ -20,7 +20,7 @@ class MediaTypeEntity(Entity):
         return {}
 
 
-class MediaTypeWithSchema(MediaTypeEntity):
+class MediaTypeWithSchemaEntity(MediaTypeEntity):
     '''
     Media Type entity represents MediaType Object with
     application/json media type
@@ -44,9 +44,9 @@ class MediaTypeWithSchema(MediaTypeEntity):
 
 
 MEDIA_TYPES = {
-    'application/json': MediaTypeWithSchema,
-    'application/x-www-form-urlencoded': MediaTypeWithSchema,
-    'multipart/form-data': MediaTypeWithSchema,
+    'application/json': MediaTypeWithSchemaEntity,
+    'application/x-www-form-urlencoded': MediaTypeWithSchemaEntity,
+    'multipart/form-data': MediaTypeWithSchemaEntity,
 }
 
 
@@ -72,7 +72,10 @@ class ContentEntity(Entity):
     def __init__(self, media_type_objs: dict):
         super().__init__(media_type_objs)
         self.media_types = {
-            tuple(k.split('/')): create_media_type_entity(k, media_type_objs[k])
+            tuple(k.split('/')): create_media_type_entity(
+                k,
+                media_type_objs[k],
+            )
             for k in sorted(media_type_objs, reverse=True)
         }
 

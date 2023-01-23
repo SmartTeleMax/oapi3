@@ -272,3 +272,10 @@ def test_request_body(schema):
             {'aaa': 'ddd'},
         )
 
+def test_operation_by_id(schema):
+    pattern, method, operation_entity = schema.get_operation_by_id(
+        'test_request_path',
+    )
+    assert pattern == '/test_request_path'
+    assert method == 'get'
+    assert operation_entity.operation_id == 'test_request_path'
