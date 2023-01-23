@@ -111,7 +111,7 @@ class HOpenApi3(iktomi.web.WebHandler):
             operation=operation,
             status_code=str(response.status_code),
             media_type=response.content_type,
-            body=self.get_response_body(response),
+            body=self._get_response_body(response),
         )
         return response
 
