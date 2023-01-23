@@ -16,7 +16,7 @@ from itertools import chain
 
 import webob
 import iktomi.web
-from iktomi.utils import VersionedStorage
+from iktomi.utils.storage import VersionedStorage
 
 from . import exceptions
 from .resolve import open_schema
@@ -82,12 +82,6 @@ class HOpenApi3(iktomi.web.WebHandler):
             return self._return_error(
                 webob.exc.HTTPBadRequest,
                 'QueryParamValidationError',
-                str(exc),
-            )
-        except exceptions.OperationNotAllowed as exc:
-            return self._return_error(
-                webob.exc.HTTPMethodNotAllowed,
-                'OperationNotAllowed',
                 str(exc),
             )
         except exceptions.MediaTypeNotAllowed as exc:
