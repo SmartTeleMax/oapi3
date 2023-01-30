@@ -131,6 +131,29 @@ def test_request_query_params(schema):
             None,
         )
 
+    # Test boolean query params
+    result = schema.validate_request(
+        '/test_request_query_params',
+        'get',
+        {'param_bool': 'xx', 'param_required': 'yyy'},
+        'application/json',
+        None,
+    )
+    assert set(result['query']) == {'param_bool', 'param_required'}
+    assert result['query']['param_bool'] is True
+    assert result['query']['param_required'] == 'yyy'
+
+    result = schema.validate_request(
+        '/test_request_query_params',
+        'get',
+        {'param_bool': '', 'param_required': 'yyy'},
+        'application/json',
+        None,
+    )
+    assert set(result['query']) == {'param_bool', 'param_required'}
+    assert result['query']['param_bool'] is False
+    assert result['query']['param_required'] == 'yyy'
+
 
 def test_request_json_query_params(schema):
     result = schema.validate_request(

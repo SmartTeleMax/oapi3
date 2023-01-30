@@ -25,6 +25,7 @@ paths:
         - $ref: '#/parameters/QueryParam'
         - $ref: '#/parameters/QueryParamRequired'
         - $ref: '#/parameters/QueryParamInt'
+        - $ref: '#/parameters/QueryParamBool'
   TestRequestJsonQueryParams:
     get:
       tag: test
@@ -70,6 +71,11 @@ parameters:
     in: query
     schema:
       type: integer
+  QueryParamBool:
+    name: param_bool
+    in: query
+    schema:
+      type: boolean
   QueryParamJson:
     name: param_json
     in: query

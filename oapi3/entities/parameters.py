@@ -93,6 +93,18 @@ class IntegerParameterEntity(PrimitiveParameterEntity):
             return value
 
 
+class BooleanParameterEntity(PrimitiveParameterEntity):
+    ''' Parameter entity for simple boolean parameters '''
+
+    def serialize(self, value: Any) -> str:
+        if value:
+            return '1'
+        return ''
+
+    def deserialize(self, value: str) -> Any:
+        return bool(value)
+
+
 class ArrayParameterEntity(PrimitiveParameterEntity):
     ''' Base parameter entity class for array parameters '''
 
@@ -161,6 +173,7 @@ PRIMITIVE_SCHEMAS = {
     'integer': IntegerParameterEntity,
     'long': IntegerParameterEntity,
     'double': IntegerParameterEntity,
+    'boolean': BooleanParameterEntity,
 }
 
 ARRAY_SCHEMAS = {
