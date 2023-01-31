@@ -83,7 +83,6 @@ class ContentEntity(Entity):
         ''' Match request media type '''
         media_type_parts = media_type.split('/')
         if len(media_type_parts) == 2:
-            print(media_type_parts)
             for k, v in self.media_types.items():
                 if k[0] != '*' and media_type_parts[0] != k[0]:
                     continue
