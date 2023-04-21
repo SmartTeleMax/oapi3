@@ -293,7 +293,7 @@ class ParametersEntity(Entity):
             raise NotImplementedError(in_)
         return dict(
             values,
-            {
+            **{
                 k: self.parameters[in_][k].serialize(v)
                 for k, v in values.items()
                 if k in self.parameters[in_]
