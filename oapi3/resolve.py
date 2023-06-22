@@ -7,10 +7,13 @@ Exemple:
 
 """
 import os
-from urllib.parse import urljoin
 from urllib.parse import urlparse
 
 import yaml
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
 
 from .schema import Schema
 
@@ -30,12 +33,13 @@ def open_schema_file(schema, file_path):
     """
     if file_path in schema:
         return schema
-    with open(file_path, encoding='utf-8') as f:
-        value = yaml.load(f, Loader=yaml.SafeLoader)
+    with open(file_path, encoding='utf-8') as fp:
+        value = yaml.load(fp, Loader=SafeLoader)
     schema[file_path] = value
     ref_files = {ref[0] for ref in get_refs(schema, file_path, value)}
     for ref_file_path in ref_files:
-        open_schema_file(schema, ref_file_path)
+        if ref_file_path not in schema:
+            open_schema_file(schema, ref_file_path)
     return schema
 
 
